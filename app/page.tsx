@@ -1,22 +1,23 @@
 "use client";
 import { useState } from "react";
-import { useTodoStore } from "./store/zustand";
+import useStore from "./store/useStore";
+import { Todo, TodoState, useTodoStore } from "./store/zustand";
 
 export default function Home() {
   const [newTodo, setNewTodo] = useState("");
-  const {
-    todos,
-    addTodo,
-    removeTodo,
-    toggleCompletedState,
-    clearCompletedTodos,
-  } = useTodoStore();
+  const { addTodo, removeTodo, toggleCompletedState, clearCompletedTodos } =
+    useTodoStore();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     addTodo(newTodo);
     setNewTodo("");
   };
+
+  const todos = useStore<TodoState, Todo[]>({
+    store: useTodoStore,
+    callback: (state: TodoState) => state.todos,
+  });
 
   return (
     <main className="w-full h-screen bg-slate-800 text-white flex justify-center">
@@ -42,7 +43,7 @@ export default function Home() {
           </button>
         </form>
         <ul className="rounded-lg  font-medium mt-5 ">
-          {todos.map((todo) => (
+          {todos?.map((todo) => (
             <li
               key={todo.id}
               className="flex justify-between bg-purple-600 px-4 py-2 rounded-lg items-center my-4"
@@ -65,7 +66,7 @@ export default function Home() {
             </li>
           ))}
         </ul>
-        {!!todos.length && (
+        {!!todos?.length && (
           <button
             onClick={clearCompletedTodos}
             className="rounded-lg bg-red-600 px-4 py-1 font-medium mt-5"
