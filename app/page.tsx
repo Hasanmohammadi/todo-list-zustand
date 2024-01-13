@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="w-full h-screen bg-slate-800 text-white flex justify-center">
       <div className="pt-8">
-        <h1 className="my-8 text-2xl font-semibold">
+        <h1 className="my-8 text-3xl font-semibold">
           Welcome to your todo list
         </h1>
         <form onSubmit={handleSubmit} className="flex gap-4">
