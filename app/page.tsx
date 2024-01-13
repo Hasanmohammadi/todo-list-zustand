@@ -29,7 +29,6 @@ export default function Home() {
     store: useTodoStore,
     callback: (state: TodoState) => state.filteredTodos,
   });
-  console.log("🚀 ~ Home ~ filteredTodos:", filteredTodos);
 
   const key = filterType === "all" ? todos : filteredTodos;
 
