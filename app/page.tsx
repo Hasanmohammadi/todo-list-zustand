@@ -1,12 +1,19 @@
 "use client";
 import { useState } from "react";
 import useStore from "./store/useStore";
-import { Todo, TodoState, useTodoStore } from "./store/zustand";
+import { FilterType, Todo, TodoState, useTodoStore } from "./store/zustand";
 
 export default function Home() {
   const [newTodo, setNewTodo] = useState("");
-  const { addTodo, removeTodo, toggleCompletedState, clearCompletedTodos } =
-    useTodoStore();
+  const [filterType, setFilterType] = useState<FilterType>("all");
+
+  const {
+    addTodo,
+    removeTodo,
+    toggleCompletedState,
+    clearCompletedTodos,
+    filterTodos,
+  } = useTodoStore();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -18,13 +25,48 @@ export default function Home() {
     store: useTodoStore,
     callback: (state: TodoState) => state.todos,
   });
+  const filteredTodos = useStore<TodoState, Todo[]>({
+    store: useTodoStore,
+    callback: (state: TodoState) => state.filteredTodos,
+  });
+  console.log("🚀 ~ Home ~ filteredTodos:", filteredTodos);
+
+  const key = filterType === "all" ? todos : filteredTodos;
 
   return (
     <main className="w-full h-screen bg-slate-800 text-white flex justify-center">
       <div className="pt-8">
-        <h1 className="my-8 text-3xl font-semibold">
-          Welcome to your todo list
-        </h1>
+        <h1 className="my-8 text-3xl font-semibold">Hassan Mohammadi</h1>
+        <div className="flex gap-8 my-4">
+          <button
+            onClick={() => setFilterType("all")}
+            className={filterType === "all" ? "bg-red-600 px-4 rounded-lg" : ""}
+          >
+            all
+          </button>
+          <button
+            onClick={() => {
+              filterTodos("completed");
+              setFilterType("completed");
+            }}
+            className={
+              filterType === "completed" ? "bg-red-600 px-4 rounded-lg" : ""
+            }
+          >
+            Completed
+          </button>
+          <button
+            onClick={() => {
+              filterTodos("active");
+              setFilterType("active");
+            }}
+            className={
+              filterType === "active" ? "bg-red-600 px-4 rounded-lg" : ""
+            }
+          >
+            Active
+          </button>
+        </div>
         <form onSubmit={handleSubmit} className="flex gap-4">
           <input
             type="text"
@@ -43,7 +85,7 @@ export default function Home() {
           </button>
         </form>
         <ul className="rounded-lg  font-medium mt-5 ">
-          {todos?.map((todo) => (
+          {key?.map((todo) => (
             <li
               key={todo.id}
               className="flex justify-between bg-purple-600 px-4 py-2 rounded-lg items-center my-4"
@@ -52,7 +94,7 @@ export default function Home() {
                 <input
                   type="checkbox"
                   checked={todo.completed}
-                  onChange={() => toggleCompletedState(todo.id)}
+                  onChange={() => toggleCompletedState(todo.id, filterType)}
                   className="cursor-pointer size-4"
                 />
                 <span>{todo.description}</span>
@@ -66,7 +108,7 @@ export default function Home() {
             </li>
           ))}
         </ul>
-        {!!todos?.length && (
+        {!!key?.length && (
           <button
             onClick={clearCompletedTodos}
             className="rounded-lg bg-red-600 px-4 py-1 font-medium mt-5"
